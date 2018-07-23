@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2018, The Masari Project
+# Copyright (c) 2017-2018, The Masanero Project
 # Copyright (c) 2014-2018, The Monero Project
 #
 # All rights reserved.
@@ -100,7 +100,7 @@ target_link_libraries(wallet_rpc_server
     ${EXTRA_LIBRARIES})
 set_property(TARGET wallet_rpc_server
   PROPERTY
-    OUTPUT_NAME "masari-wallet-rpc")
+    OUTPUT_NAME "masanero-wallet-rpc")
 install(TARGETS wallet_rpc_server DESTINATION bin)
 
 

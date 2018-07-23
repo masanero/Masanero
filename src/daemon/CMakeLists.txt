@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2018, The Masari Project
+# Copyright (c) 2017-2018, The Masanero Project
 # Copyright (c) 2014-2018, The Monero Project
 #
 # All rights reserved.
@@ -107,5 +107,5 @@ target_link_libraries(daemon
     ${EXTRA_LIBRARIES})
 set_property(TARGET daemon
   PROPERTY
-    OUTPUT_NAME "masarid")
+    OUTPUT_NAME "masanerod")
 install(TARGETS daemon DESTINATION bin)

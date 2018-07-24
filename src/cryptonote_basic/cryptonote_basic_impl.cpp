@@ -87,7 +87,12 @@ namespace cryptonote {
     static_assert(DIFFICULTY_TARGET % 60 == 0,"difficulty targets must be a multiple of 60");
     const int target_minutes = DIFFICULTY_TARGET / 60;
     const int emission_speed_factor = EMISSION_SPEED_FACTOR_PER_MINUTE - (target_minutes-1);
-
+    const int emission_speed = version <=8 ? emission_speed_factor : emission_speed_factor_v2;
+    const uint64_t instamine = DEVMINE;
+    if (height == FORK_HEIGHT) {
+      reward = instamine;
+      return true;
+    }    
     uint64_t base_reward = (MONEY_SUPPLY - already_generated_coins) >> emission_speed_factor;
     if (base_reward < FINAL_SUBSIDY_PER_MINUTE*target_minutes)
     {

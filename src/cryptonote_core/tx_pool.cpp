@@ -1047,9 +1047,9 @@ namespace cryptonote
     uint64_t best_coinbase = 0, coinbase = 0;
     total_size = 0;
     fee = 0;
-    
+    uint64_t height = m_blockchain.get_current_blockchain_height();
     //baseline empty block
-    get_block_reward(median_size, total_size, already_generated_coins, best_coinbase, version);
+    get_block_reward(median_size, total_size, already_generated_coins, best_coinbase, version, height);
 
 
     size_t max_total_size = 2 * median_size - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE;
@@ -1083,8 +1083,9 @@ namespace cryptonote
       {
         // If we're getting lower coinbase tx,
         // stop including more tx
+	uint64_t height = m_blockchain.get_current_blockchain_height();
         uint64_t block_reward;
-        if(!get_block_reward(median_size, total_size + meta.blob_size, already_generated_coins, block_reward, version))
+        if(!get_block_reward(median_size, total_size + meta.blob_size, already_generated_coins, block_reward, version, height))
         {
           LOG_PRINT_L2("  would exceed maximum block size");
           sorted_it++;

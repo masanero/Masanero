@@ -1094,10 +1094,10 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
   for (auto& o: b.miner_tx.vout)
     money_in_use += o.amount;
   partial_block_reward = false;
-
+  uint64_t cal_height = m_db->height();
   std::vector<size_t> last_blocks_sizes;
   get_last_n_blocks_sizes(last_blocks_sizes, CRYPTONOTE_REWARD_BLOCKS_WINDOW);
-  if (!get_block_reward(epee::misc_utils::median(last_blocks_sizes), cumulative_block_size, already_generated_coins, base_reward, version))
+  if (!get_block_reward(epee::misc_utils::median(last_blocks_sizes), cumulative_block_size, already_generated_coins, base_reward, version, cal_height))
   {
     MERROR_VER("block size " << cumulative_block_size << " is bigger than allowed for this blockchain");
     return false;
@@ -2838,7 +2838,8 @@ bool Blockchain::check_fee(size_t blob_size, uint64_t fee) const
     uint64_t median = m_current_block_cumul_sz_limit / 2;
     uint64_t already_generated_coins = m_db->height() ? m_db->get_block_already_generated_coins(m_db->height() - 1) : 0;
     uint64_t base_reward;
-    if (!get_block_reward(median, 1, already_generated_coins, base_reward, version))
+    uint64_t cal_height = m_db->height();
+    if (!get_block_reward(median, 1, already_generated_coins, base_reward, version, cal_height))
       return false;
     fee_per_kb = get_dynamic_per_kb_fee(base_reward, median, version);
   }
@@ -2876,7 +2877,8 @@ uint64_t Blockchain::get_dynamic_per_kb_fee_estimate(uint64_t grace_blocks) cons
 
   uint64_t already_generated_coins = m_db->height() ? m_db->get_block_already_generated_coins(m_db->height() - 1) : 0;
   uint64_t base_reward;
-  if (!get_block_reward(median, 1, already_generated_coins, base_reward, version))
+  uint64_t cal_height = m_db->height();
+  if (!get_block_reward(median, 1, already_generated_coins, base_reward, version, cal_height))
   {
     MERROR("Failed to determine block reward, using placeholder " << print_money(BLOCK_REWARD_OVERESTIMATE) << " as a high bound");
     base_reward = BLOCK_REWARD_OVERESTIMATE;
@@ -3392,7 +3394,22 @@ leave:
   // coins will eventually exceed MONEY_SUPPLY and overflow a uint64. To prevent overflow, cap already_generated_coins
   // at MONEY_SUPPLY. already_generated_coins is only used to compute the block subsidy and MONEY_SUPPLY yields a
   // subsidy of 0 under the base formula and therefore the minimum subsidy >0 in the tail state.
-  already_generated_coins = base_reward < (MONEY_SUPPLY-already_generated_coins) ? already_generated_coins + base_reward : MONEY_SUPPLY;
+  uint8_t version = get_current_hard_fork_version();
+  if (m_nettype == TESTNET)
+  {
+    uint64_t TOKEN_SUPPLY = version <= 7 ? MONEY_SUPPLY : TOKENS;
+    already_generated_coins = base_reward < (TOKEN_SUPPLY-already_generated_coins) ? already_generated_coins + base_reward : TOKEN_SUPPLY ;
+  }
+  else if (m_nettype == STAGENET)
+  {
+    uint64_t TOKEN_SUPPLY = version <= 7 ? MONEY_SUPPLY : TOKENS;
+    already_generated_coins = base_reward < (TOKEN_SUPPLY-already_generated_coins) ? already_generated_coins + base_reward : TOKEN_SUPPLY ;
+  }
+  else
+  {
+    uint64_t TOKEN_SUPPLY = version <= 7 ? MONEY_SUPPLY : TOKENS;
+    already_generated_coins = base_reward < (TOKEN_SUPPLY-already_generated_coins) ? already_generated_coins + base_reward : TOKEN_SUPPLY ;
+  }
   if(m_db->height())
     cumulative_difficulty += m_db->get_block_cumulative_difficulty(m_db->height() - 1);
 

@@ -55,7 +55,7 @@
 #define CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V6           60*5
 
 #define EMISSION_SPEED_FACTOR_PER_MINUTE                (20)
-#define FINAL_SUBSIDY_PER_MINUTE                        ((uint64_t)30000000000) // 3 * pow(10, 10)
+
 // COIN - number of smallest units in one coin
 #define COIN                                            ((uint64_t)100000000000) // pow(10, 11)
 // MONEY_SUPPLY - total number coins to be generated
